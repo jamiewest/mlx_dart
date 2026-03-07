@@ -1,0 +1,17 @@
+name: mlx_dart
+description: MLX tensor operations and neural network primitives for Dart — the Dart equivalent of mlx-swift.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  ffi: ^2.1.2
+  mlx_ffi:
+    git:
+      url: https://github.com/jamiewest/mlx_c_ffi.git
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.25.0
