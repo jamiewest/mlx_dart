@@ -1,4 +1,11 @@
 export 'src/array.dart';
 export 'src/context.dart';
+export 'src/fft.dart';
+export 'src/io.dart';
+export 'src/kv_cache.dart';
 export 'src/layers.dart';
+export 'src/linalg.dart';
+export 'src/losses.dart';
 export 'src/module.dart';
+export 'src/optimizers.dart';
+export 'src/random.dart';

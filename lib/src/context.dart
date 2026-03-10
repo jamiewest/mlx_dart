@@ -47,6 +47,89 @@ final class MLXContext {
     check(bindings.mlx_synchronize(stream), 'mlx_synchronize');
   }
 
+  // ---------------------------------------------------------------------------
+  // Memory management
+  // ---------------------------------------------------------------------------
+
+  /// Active GPU memory currently in use, in bytes.
+  int get activeMemory {
+    final out = calloc<ffi.Size>();
+    try {
+      check(bindings.mlx_get_active_memory(out), 'mlx_get_active_memory');
+      return out.value;
+    } finally {
+      calloc.free(out);
+    }
+  }
+
+  /// GPU memory held in the cache (available for reuse), in bytes.
+  int get cacheMemory {
+    final out = calloc<ffi.Size>();
+    try {
+      check(bindings.mlx_get_cache_memory(out), 'mlx_get_cache_memory');
+      return out.value;
+    } finally {
+      calloc.free(out);
+    }
+  }
+
+  /// Peak GPU memory usage since the last [resetPeakMemory] call, in bytes.
+  int get peakMemory {
+    final out = calloc<ffi.Size>();
+    try {
+      check(bindings.mlx_get_peak_memory(out), 'mlx_get_peak_memory');
+      return out.value;
+    } finally {
+      calloc.free(out);
+    }
+  }
+
+  /// Current memory limit in bytes.
+  int get memoryLimit {
+    final out = calloc<ffi.Size>();
+    try {
+      check(bindings.mlx_get_memory_limit(out), 'mlx_get_memory_limit');
+      return out.value;
+    } finally {
+      calloc.free(out);
+    }
+  }
+
+  /// Free all cached GPU memory.
+  void clearCache() {
+    check(bindings.mlx_clear_cache(), 'mlx_clear_cache');
+  }
+
+  /// Reset the peak memory counter to zero.
+  void resetPeakMemory() {
+    check(bindings.mlx_reset_peak_memory(), 'mlx_reset_peak_memory');
+  }
+
+  /// Set the memory limit. Returns the previous limit in bytes.
+  int setMemoryLimit(int bytes) {
+    final out = calloc<ffi.Size>();
+    try {
+      check(
+        bindings.mlx_set_memory_limit(out, bytes),
+        'mlx_set_memory_limit',
+      );
+      return out.value;
+    } finally {
+      calloc.free(out);
+    }
+  }
+
+  /// Set the cache limit. Returns the previous limit in bytes.
+  int setCacheLimit(int bytes) {
+    final out = calloc<ffi.Size>();
+    try {
+      check(bindings.mlx_set_cache_limit(out, bytes), 'mlx_set_cache_limit');
+      return out.value;
+    } finally {
+      calloc.free(out);
+    }
+  }
+
   void dispose() {
     if (_disposed) return;
     _disposed = true;

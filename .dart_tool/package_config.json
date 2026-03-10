@@ -105,9 +105,9 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///Users/jamie/.pub-cache/hosted/pub.dev/lints-5.1.1",
+      "rootUri": "file:///Users/jamie/.pub-cache/hosted/pub.dev/lints-6.1.0",
       "packageUri": "lib/",
-      "languageVersion": "3.6"
+      "languageVersion": "3.8"
     },
     {
       "name": "logging",

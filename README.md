@@ -10,9 +10,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  mlx_dart:
-    git:
-      url: https://github.com/jamiewest/mlx_dart.git
+  mlx_dart: ^0.1.0
 ```
 
 The package requires `libmlxc.dylib` (or `libmlx.dylib`) to be present on the library search path at runtime. Build it from [ml-explore/mlx-c](https://github.com/ml-explore/mlx-c).
@@ -70,30 +68,38 @@ The table below tracks progress against mlx-swift modules.
 | Causal mask utility | `createCausalMask` | `createCausalMask` |
 | Bilinear resize | custom | `bilinearResize` |
 | Sampling (`argmaxSample`, `categoricalSample`) | various | yes |
-| **Missing ops** (`min`, `prod`, `std`, `var`, `log1p`, `log2`, `logSumExp`, `maximum`, `minimum`, `negative`, `notEqual`, `isNaN`, `isInf`, `sign`, `sinh`, `cosh`, `tan`, `atan`, `acos`, `asin`, `expm1`, `erfInverse`, `tril`, `triu`, `trace`, `top`, `roll`, `einsum`, `inner`, `outer`, `kron`, `tensordot`, `tiled`, `nanToNum`, `degrees`, `radians`) | yes | not yet |
-| `eye`, `full`, `linspace` factory ops | yes | not yet |
-| `conv1d`, `conv3d`, transposed convolutions | yes | not yet |
+| Reductions (`min`, `prod`, `std`, `var`) | yes | yes |
+| Element-wise math (`log1p`, `log2`, `logSumExp`, `maximum`, `minimum`, `negative`, `notEqual`, `isNaN`, `isInf`, `sign`, `sinh`, `cosh`, `tan`, `atan`, `acos`, `asin`, `expm1`, `erfInverse`) | yes | yes |
+| Array ops (`tril`, `triu`, `trace`, `top`, `roll`, `einsum`, `inner`, `outer`, `kron`, `tensordot`, `tiled`, `nanToNum`, `degrees`, `radians`) | yes | yes |
+| `eye`, `full`, `linspace` factory ops | yes | yes |
+| `conv1d` | yes | yes |
+| `conv3d` | yes | not yet |
+| `convTransposed2d` | yes | yes |
+| `convTransposed1d` | yes | yes |
+| `convTransposed3d` | yes | not yet |
 | Grad transforms (`grad`, `vjp`, `jvp`, `valueAndGrad`) | yes | not yet |
 | `vmap` | yes | not yet |
 | `compile` | yes | not yet |
 | `MLXCustomFunction` | yes | not yet |
-| Memory / wired memory | yes | not yet |
+| Memory / wired memory | yes | yes (`activeMemory`, `cacheMemory`, `peakMemory`, `clearCache`, etc.) |
 | State / global stream management | yes | not yet |
-| IO (safetensors, GGUF) | yes | not yet |
+| IO (safetensors) | yes | yes |
+| IO (GGUF) | yes | not yet |
 
 ### MLXRandom (`Source/MLXRandom`)
 
 | Feature | mlx-swift | mlx_dart |
 |---|---|---|
-| `seed`, `key`, `split` | yes | not yet |
-| `uniform` | yes | not yet |
-| `normal`, `multivariateNormal` | yes | not yet |
-| `randInt` | yes | not yet |
-| `bernoulli` | yes | not yet |
-| `truncatedNormal` | yes | not yet |
-| `gumbel` | yes | not yet |
+| `seed`, `key`, `split` | yes | yes |
+| `uniform` | yes | yes |
+| `normal` | yes | yes |
+| `multivariateNormal` | yes | yes |
+| `randInt` | yes | yes |
+| `bernoulli` | yes | yes |
+| `truncatedNormal` | yes | yes |
+| `gumbel` | yes | yes |
 | `categorical` | partial (on `MLXArray`) | `categoricalSample` |
-| `laplace` | yes | not yet |
+| `laplace` | yes | yes |
 
 ### MLXNN (`Source/MLXNN`)
 
@@ -106,8 +112,8 @@ The table below tracks progress against mlx-swift modules.
 | `loadWeights` | yes | yes |
 | `sanitize` | yes | yes |
 | `WeightLoader` | — | `WeightLoader` |
-| `Sequential` container | yes | not yet |
-| `UnaryLayer` protocol | yes | not yet |
+| `Sequential` container | yes | yes |
+| `UnaryLayer` protocol | yes | yes (`UnaryLayer` interface) |
 | Value-and-grad helpers | `ValueAndGrad` | not yet |
 
 #### Layers
@@ -119,75 +125,87 @@ The table below tracks progress against mlx-swift modules.
 | `RMSNorm` | yes | yes |
 | `LayerNorm` | yes | yes |
 | `Conv2d` | yes | yes |
-| `GroupNorm` | yes | not yet |
-| `BatchNorm` | yes | not yet |
-| `InstanceNorm` | yes | not yet |
-| `Conv1d` | yes | not yet |
+| `GroupNorm` | yes | yes |
+| `BatchNorm` | yes | yes |
+| `InstanceNorm` | yes | yes |
+| `Conv1d` | yes | yes |
 | `Conv3d` | yes | not yet |
-| `ConvTransposed1d/2d/3d` | yes | not yet |
-| `Dropout`, `Dropout2d`, `Dropout3d` | yes | not yet |
-| `MaxPool1d/2d/3d` | yes | not yet |
-| `AvgPool1d/2d/3d` | yes | not yet |
-| `MultiHeadAttention` | yes | not yet |
-| `Transformer` (encoder + decoder) | yes | not yet |
-| `SinusoidalPositionalEncoding` | yes | not yet |
-| `RNN`, `GRU`, `LSTM` | yes | not yet |
-| `Upsample` | yes | not yet |
+| `ConvTransposed1d` | yes | yes |
+| `ConvTransposed2d` | yes | yes |
+| `ConvTransposed3d` | yes | not yet |
+| `Dropout` | yes | yes |
+| `Dropout2d` | yes | yes |
+| `Dropout3d` | yes | not yet |
+| `MaxPool2d` | yes | yes |
+| `MaxPool1d` | yes | yes |
+| `MaxPool3d` | yes | not yet |
+| `AvgPool2d` | yes | yes |
+| `AvgPool1d` | yes | yes |
+| `AvgPool3d` | yes | not yet |
+| `MultiHeadAttention` | yes | yes |
+| `Transformer` (encoder + decoder) | yes | yes (`TransformerEncoder`, `TransformerDecoder`) |
+| `SinusoidalPositionalEncoding` | yes | yes |
+| `RNN`, `GRU`, `LSTM` | yes | yes |
+| `Upsample` | yes | yes |
 | Quantized layers | yes | not yet |
-| KV cache (`Cache`, `RotatingKVCache`) | yes | not yet |
+| KV cache (`Cache`, `RotatingKVCache`) | yes | yes (`KVCache`, `RotatingKVCache`) |
 
 #### Activations
 
-Functional activations available on `MLXArray`: `relu()`, `gelu()`, `silu()`, `sigmoid()`, `tanh()`, `softmax()`.
+Functional activations available on `MLXArray`: `relu()`, `gelu()`, `silu()`, `sigmoid()`, `tanh()`, `softmax()`, `leakyRelu()`, `elu()`, `celu()`.
 
 | Activation | mlx-swift | mlx_dart |
 |---|---|---|
 | `relu`, `gelu`, `silu`, `sigmoid`, `tanh` | yes | yes (on `MLXArray`) |
-| `leakyRelu` | yes | not yet |
-| `elu`, `celu` | yes | not yet |
-| `relu6`, `reluSquared` | yes | not yet |
-| `logSoftmax` | yes | not yet |
-| `softPlus` / `softsign` | yes | not yet |
-| `softshrink` | yes | not yet |
-| Activation layer classes (`ReLU`, `GELU`, etc.) | yes | not yet |
+| `leakyRelu` | yes | yes |
+| `elu`, `celu` | yes | yes |
+| `relu6`, `reluSquared` | yes | yes |
+| `logSoftmax` | yes | yes |
+| `softPlus` / `softsign` | yes | yes |
+| `softshrink` | yes | yes |
+| Activation layer classes (`ReLU`, `GELU`, `SiLU`, `Sigmoid`, `Tanh`, `Softmax`, `LeakyReLU`, `ELU`, `CELU`) | yes | yes |
 
 #### Losses
 
 | Loss | mlx-swift | mlx_dart |
 |---|---|---|
-| `crossEntropy` | yes | not yet |
-| `binaryCrossEntropy` | yes | not yet |
-| `l1Loss`, `mseLoss` | yes | not yet |
-| `nllLoss`, `klDivLoss` | yes | not yet |
-| `smoothL1Loss`, `huberLoss` | yes | not yet |
-| `hingeLoss`, `tripletLoss` | yes | not yet |
-| `logCoshLoss`, `cosineSimilarityLoss` | yes | not yet |
+| `crossEntropy` | yes | yes |
+| `binaryCrossEntropy` | yes | yes |
+| `l1Loss`, `mseLoss` | yes | yes |
+| `nllLoss`, `klDivLoss` | yes | yes |
+| `smoothL1Loss`, `huberLoss` | yes | yes |
+| `hingeLoss`, `tripletLoss` | yes | yes |
+| `logCoshLoss`, `cosineSimilarityLoss` | yes | yes |
 
 ### MLXOptimizers (`Source/MLXOptimizers`)
 
 | Optimizer | mlx-swift | mlx_dart |
 |---|---|---|
-| `SGD` | yes | not yet |
-| `Adam`, `AdamW`, `Adamax` | yes | not yet |
-| `RMSprop`, `AdaGrad`, `AdaDelta` | yes | not yet |
-| `Lion`, `Adafactor` | yes | not yet |
+| `SGD` | yes | yes |
+| `Adam`, `AdamW`, `Adamax` | yes | yes |
+| `RMSprop`, `AdaGrad`, `AdaDelta` | yes | yes |
+| `Lion` | yes | yes |
+| `Adafactor` | yes | yes |
 
 ### MLXLinalg (`Source/MLXLinalg`)
 
 | Feature | mlx-swift | mlx_dart |
 |---|---|---|
-| `norm` | yes | not yet |
-| `svd`, `qr`, `lu` | yes | not yet |
-| `inv`, `triInv`, `cholesky`, `choleskyInv` | yes | not yet |
-| `solve`, `solveTriangular` | yes | not yet |
-| `cross` | yes | not yet |
+| `norm` | yes | yes |
+| `svd`, `qr` | yes | yes |
+| `lu` | yes | yes |
+| `inv` | yes | yes |
+| `triInv`, `choleskyInv` | yes | yes |
+| `cholesky` | yes | yes |
+| `solve`, `solveTriangular` | yes | yes |
+| `cross` | yes | yes |
 
 ### MLXFFT (`Source/MLXFFT`)
 
 | Feature | mlx-swift | mlx_dart |
 |---|---|---|
-| `fft`, `ifft`, `fft2`, `ifft2`, `fftn`, `ifftn` | yes | not yet |
-| `rfft`, `irfft`, `rfft2`, `irfft2` | yes | not yet |
+| `fft`, `ifft`, `fft2`, `ifft2`, `fftn`, `ifftn` | yes | yes |
+| `rfft`, `irfft`, `rfft2`, `irfft2` | yes | yes |
 
 ## Architecture
 
@@ -197,7 +215,14 @@ mlx_dart
 │   ├── context.dart   — MLXContext, MLXException
 │   ├── array.dart     — MLXArray, MLXDtype, free ops
 │   ├── module.dart    — Module, ParametersMixin, WeightLoader
-│   └── layers.dart    — Linear, Embedding, RMSNorm, LayerNorm, Conv2d
+│   ├── layers.dart    — Linear, Embedding, RMSNorm, LayerNorm, Conv2d, Conv1d, Sequential, Dropout, Dropout2d, GroupNorm, InstanceNorm, BatchNorm, MultiHeadAttention, TransformerEncoder, TransformerDecoder, SinusoidalPositionalEncoding, MaxPool1d, MaxPool2d, AvgPool1d, AvgPool2d, Upsample, RNN, GRU, LSTM, activation layer classes
+│   ├── losses.dart    — MLX loss functions
+│   ├── optimizers.dart — SGD, Adam, AdamW, Adamax, RMSprop, AdaGrad, AdaDelta, Lion, Adafactor
+│   ├── kv_cache.dart  — KVCache, RotatingKVCache
+│   ├── random.dart    — MLXRandom
+│   ├── linalg.dart    — MLXLinalg
+│   ├── fft.dart       — MLXFFT
+│   └── io.dart        — MLXSafetensors
 └── pubspec.yaml
 ```
 
