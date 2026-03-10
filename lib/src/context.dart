@@ -1,7 +1,7 @@
 import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart';
-import 'package:mlx_ffi/mlx_ffi.dart';
+import 'package:mlx_c_ffi/mlx_c_ffi.dart';
 
 /// Execution context wrapping MLX bindings and a default compute stream.
 ///

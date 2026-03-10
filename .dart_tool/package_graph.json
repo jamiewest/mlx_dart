@@ -8,7 +8,7 @@
       "version": "0.1.0",
       "dependencies": [
         "ffi",
-        "mlx_ffi"
+        "mlx_c_ffi"
       ],
       "devDependencies": [
         "lints",
@@ -52,7 +52,7 @@
       "dependencies": []
     },
     {
-      "name": "mlx_ffi",
+      "name": "mlx_c_ffi",
       "version": "0.1.0",
       "dependencies": [
         "ffi"

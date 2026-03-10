@@ -134,8 +134,8 @@
       "languageVersion": "3.2"
     },
     {
-      "name": "mlx_ffi",
-      "rootUri": "file:///Users/jamie/.pub-cache/git/mlx_c_ffi-8a4b30e71e50dd533dc96d3aeec8eb583fc59120/",
+      "name": "mlx_c_ffi",
+      "rootUri": "file:///Users/jamie/.pub-cache/hosted/pub.dev/mlx_c_ffi-0.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },

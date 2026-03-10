@@ -2,7 +2,7 @@ import 'dart:ffi' as ffi;
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
-import 'package:mlx_ffi/mlx_ffi.dart';
+import 'package:mlx_c_ffi/mlx_c_ffi.dart';
 
 import 'context.dart';
 
@@ -137,8 +137,10 @@ final class MLXArray {
   }) {
     final shapePtr = _allocShapePtr(shape);
     try {
-      return _opChecked(ctx,
-          (out) => ctx.bindings.mlx_zeros(out, shapePtr, shape.length, dtype.raw, ctx.stream));
+      return _opChecked(
+          ctx,
+          (out) => ctx.bindings
+              .mlx_zeros(out, shapePtr, shape.length, dtype.raw, ctx.stream));
     } finally {
       calloc.free(shapePtr);
     }
@@ -151,8 +153,10 @@ final class MLXArray {
   }) {
     final shapePtr = _allocShapePtr(shape);
     try {
-      return _opChecked(ctx,
-          (out) => ctx.bindings.mlx_ones(out, shapePtr, shape.length, dtype.raw, ctx.stream));
+      return _opChecked(
+          ctx,
+          (out) => ctx.bindings
+              .mlx_ones(out, shapePtr, shape.length, dtype.raw, ctx.stream));
     } finally {
       calloc.free(shapePtr);
     }
@@ -165,8 +169,10 @@ final class MLXArray {
     double step, {
     MLXDtype dtype = MLXDtype.float32,
   }) =>
-      _opChecked(ctx,
-          (out) => ctx.bindings.mlx_arange(out, start, stop, step, dtype.raw, ctx.stream));
+      _opChecked(
+          ctx,
+          (out) => ctx.bindings
+              .mlx_arange(out, start, stop, step, dtype.raw, ctx.stream));
 
   // ---------------------------------------------------------------------------
   // Properties
@@ -215,7 +221,8 @@ final class MLXArray {
     context.synchronize();
     final out = calloc<ffi.Float>();
     try {
-      context.check(_b.mlx_array_item_float32(out, _raw), 'mlx_array_item_float32');
+      context.check(
+          _b.mlx_array_item_float32(out, _raw), 'mlx_array_item_float32');
       return out.value;
     } finally {
       calloc.free(out);
@@ -275,7 +282,8 @@ final class MLXArray {
   MLXArray reshape(List<int> newShape) {
     final ptr = _allocShapePtr(newShape);
     try {
-      return _opChecked(context, (out) => _b.mlx_reshape(out, _raw, ptr, newShape.length, _s));
+      return _opChecked(context,
+          (out) => _b.mlx_reshape(out, _raw, ptr, newShape.length, _s));
     } finally {
       calloc.free(ptr);
     }
@@ -297,7 +305,8 @@ final class MLXArray {
       ptr[i] = axes[i];
     }
     try {
-      return _opChecked(context, (out) => _b.mlx_transpose_axes(out, _raw, ptr, axes.length, _s));
+      return _opChecked(context,
+          (out) => _b.mlx_transpose_axes(out, _raw, ptr, axes.length, _s));
     } finally {
       calloc.free(ptr);
     }
@@ -316,7 +325,8 @@ final class MLXArray {
     for (var i = startAxis; i <= end; i++) {
       flatDim *= s[i];
     }
-    return reshape([...s.sublist(0, startAxis), flatDim, ...s.sublist(end + 1)]);
+    return reshape(
+        [...s.sublist(0, startAxis), flatDim, ...s.sublist(end + 1)]);
   }
 
   // ---------------------------------------------------------------------------
@@ -335,8 +345,10 @@ final class MLXArray {
     final stopPtr = _allocIntPtr(stop);
     final stridePtr = _allocIntPtr(stride);
     try {
-      return _opChecked(context, (out) => _b.mlx_slice(
-            out, _raw, startPtr, rank, stopPtr, rank, stridePtr, rank, _s));
+      return _opChecked(
+          context,
+          (out) => _b.mlx_slice(
+              out, _raw, startPtr, rank, stopPtr, rank, stridePtr, rank, _s));
     } finally {
       calloc.free(startPtr);
       calloc.free(stopPtr);
@@ -357,8 +369,10 @@ final class MLXArray {
     final stopPtr = _allocIntPtr(stop);
     final stridePtr = _allocIntPtr(stride);
     try {
-      return _opChecked(context, (out) => _b.mlx_slice_update(
-            out, _raw, update._raw, startPtr, rank, stopPtr, rank, stridePtr, rank, _s));
+      return _opChecked(
+          context,
+          (out) => _b.mlx_slice_update(out, _raw, update._raw, startPtr, rank,
+              stopPtr, rank, stridePtr, rank, _s));
     } finally {
       calloc.free(startPtr);
       calloc.free(stopPtr);
@@ -366,33 +380,38 @@ final class MLXArray {
     }
   }
 
-  MLXArray take(MLXArray indices, {int axis = 0}) =>
-      _opChecked(context, (out) => _b.mlx_take_axis(out, _raw, indices._raw, axis, _s));
+  MLXArray take(MLXArray indices, {int axis = 0}) => _opChecked(
+      context, (out) => _b.mlx_take_axis(out, _raw, indices._raw, axis, _s));
 
   // ---------------------------------------------------------------------------
   // Reductions
   // ---------------------------------------------------------------------------
 
   MLXArray sum({int? axis, bool keepdims = false}) => axis != null
-      ? _opChecked(context, (out) => _b.mlx_sum_axis(out, _raw, axis, keepdims, _s))
+      ? _opChecked(
+          context, (out) => _b.mlx_sum_axis(out, _raw, axis, keepdims, _s))
       : _opChecked(context, (out) => _b.mlx_sum(out, _raw, keepdims, _s));
 
   MLXArray mean({int? axis, bool keepdims = false}) => axis != null
-      ? _opChecked(context, (out) => _b.mlx_mean_axis(out, _raw, axis, keepdims, _s))
+      ? _opChecked(
+          context, (out) => _b.mlx_mean_axis(out, _raw, axis, keepdims, _s))
       : _opChecked(context, (out) => _b.mlx_mean(out, _raw, keepdims, _s));
 
   MLXArray max({int? axis, bool keepdims = false}) => axis != null
-      ? _opChecked(context, (out) => _b.mlx_max_axis(out, _raw, axis, keepdims, _s))
+      ? _opChecked(
+          context, (out) => _b.mlx_max_axis(out, _raw, axis, keepdims, _s))
       : _opChecked(context, (out) => _b.mlx_max(out, _raw, keepdims, _s));
 
-  MLXArray argmax({int axis = -1, bool keepdims = false}) =>
-      _opChecked(context, (out) => _b.mlx_argmax_axis(out, _raw, axis, keepdims, _s));
+  MLXArray argmax({int axis = -1, bool keepdims = false}) => _opChecked(
+      context, (out) => _b.mlx_argmax_axis(out, _raw, axis, keepdims, _s));
 
-  MLXArray softmax({int axis = -1}) =>
-      _opChecked(context, (out) => _b.mlx_softmax_axis(out, _raw, axis, false, _s));
+  MLXArray softmax({int axis = -1}) => _opChecked(
+      context, (out) => _b.mlx_softmax_axis(out, _raw, axis, false, _s));
 
-  MLXArray cumsum({int axis = 0, bool exclusive = false, bool reverse = false}) =>
-      _opChecked(context, (out) => _b.mlx_cumsum(out, _raw, axis, exclusive, reverse, _s));
+  MLXArray cumsum(
+          {int axis = 0, bool exclusive = false, bool reverse = false}) =>
+      _opChecked(context,
+          (out) => _b.mlx_cumsum(out, _raw, axis, exclusive, reverse, _s));
 
   MLXArray sort({int axis = -1}) =>
       _opChecked(context, (out) => _b.mlx_sort_axis(out, _raw, axis, _s));
@@ -409,11 +428,13 @@ final class MLXArray {
   MLXArray sqrt() => _opChecked(context, (out) => _b.mlx_sqrt(out, _raw, _s));
   MLXArray rsqrt() => _opChecked(context, (out) => _b.mlx_rsqrt(out, _raw, _s));
   MLXArray abs() => _opChecked(context, (out) => _b.mlx_abs(out, _raw, _s));
-  MLXArray sigmoid() => _opChecked(context, (out) => _b.mlx_sigmoid(out, _raw, _s));
+  MLXArray sigmoid() =>
+      _opChecked(context, (out) => _b.mlx_sigmoid(out, _raw, _s));
   MLXArray tanh() => _opChecked(context, (out) => _b.mlx_tanh(out, _raw, _s));
   MLXArray sin() => _opChecked(context, (out) => _b.mlx_sin(out, _raw, _s));
   MLXArray cos() => _opChecked(context, (out) => _b.mlx_cos(out, _raw, _s));
-  MLXArray square() => _opChecked(context, (out) => _b.mlx_square(out, _raw, _s));
+  MLXArray square() =>
+      _opChecked(context, (out) => _b.mlx_square(out, _raw, _s));
 
   MLXArray erf() => _opChecked(context, (out) => _b.mlx_erf(out, _raw, _s));
 
@@ -424,8 +445,8 @@ final class MLXArray {
   MLXArray round({int decimals = 0}) =>
       _opChecked(context, (out) => _b.mlx_round(out, _raw, decimals, _s));
 
-  MLXArray clip({required MLXArray min, required MLXArray max}) =>
-      _opChecked(context, (out) => _b.mlx_clip(out, _raw, min._raw, max._raw, _s));
+  MLXArray clip({required MLXArray min, required MLXArray max}) => _opChecked(
+      context, (out) => _b.mlx_clip(out, _raw, min._raw, max._raw, _s));
 
   /// Pad [this] array with [padValue] along each listed [axes].
   ///
@@ -487,14 +508,15 @@ final class MLXArray {
 
   MLXArray relu() {
     final zero = MLXArray.zeros(context, [], dtype: dtype);
-    final r = _opChecked(context, (out) => _b.mlx_maximum(out, _raw, zero._raw, _s));
+    final r =
+        _opChecked(context, (out) => _b.mlx_maximum(out, _raw, zero._raw, _s));
     zero.dispose();
     return r;
   }
 
   /// Repeat this array [repeats] times along [axis].
-  MLXArray repeat(int repeats, {int axis = 0}) =>
-      _opChecked(context, (out) => _b.mlx_repeat_axis(out, _raw, repeats, axis, _s));
+  MLXArray repeat(int repeats, {int axis = 0}) => _opChecked(
+      context, (out) => _b.mlx_repeat_axis(out, _raw, repeats, axis, _s));
 
   /// Split into [numSplits] equal parts along [axis].
   List<MLXArray> split(int numSplits, {int axis = 0}) {
@@ -504,7 +526,8 @@ final class MLXArray {
       final count = _b.mlx_vector_array_size(vec.ref);
       return List.generate(count, (i) {
         final ptr = calloc<mlx_array>();
-        context.check(_b.mlx_vector_array_get(ptr, vec.ref, i), 'mlx_vector_array_get');
+        context.check(
+            _b.mlx_vector_array_get(ptr, vec.ref, i), 'mlx_vector_array_get');
         return MLXArray.owned(context, ptr);
       });
     } finally {
@@ -517,14 +540,14 @@ final class MLXArray {
   // Comparisons
   // ---------------------------------------------------------------------------
 
-  MLXArray greaterEqual(MLXArray other) =>
-      _opChecked(context, (out) => _b.mlx_greater_equal(out, _raw, other._raw, _s));
+  MLXArray greaterEqual(MLXArray other) => _opChecked(
+      context, (out) => _b.mlx_greater_equal(out, _raw, other._raw, _s));
 
   MLXArray less(MLXArray other) =>
       _opChecked(context, (out) => _b.mlx_less(out, _raw, other._raw, _s));
 
-  MLXArray logicalAnd(MLXArray other) =>
-      _opChecked(context, (out) => _b.mlx_logical_and(out, _raw, other._raw, _s));
+  MLXArray logicalAnd(MLXArray other) => _opChecked(
+      context, (out) => _b.mlx_logical_and(out, _raw, other._raw, _s));
 
   // ---------------------------------------------------------------------------
   // Type casting
@@ -537,16 +560,22 @@ final class MLXArray {
   // Fast NN primitives (Metal-accelerated)
   // ---------------------------------------------------------------------------
 
-  MLXArray rmsNorm(MLXArray weight, {double eps = 1e-5}) =>
-      _opChecked(context, (out) => _b.mlx_fast_rms_norm(out, _raw, weight._raw, eps, _s));
+  MLXArray rmsNorm(MLXArray weight, {double eps = 1e-5}) => _opChecked(
+      context, (out) => _b.mlx_fast_rms_norm(out, _raw, weight._raw, eps, _s));
 
   MLXArray layerNorm(MLXArray weight, MLXArray? bias, {double eps = 1e-5}) {
     if (bias != null) {
-      return _opChecked(context, (out) => _b.mlx_fast_layer_norm(out, _raw, weight._raw, bias._raw, eps, _s));
+      return _opChecked(
+          context,
+          (out) => _b.mlx_fast_layer_norm(
+              out, _raw, weight._raw, bias._raw, eps, _s));
     }
     final zeroBias = MLXArray.zeros(context, [weight.shape.last]);
     try {
-      return _opChecked(context, (out) => _b.mlx_fast_layer_norm(out, _raw, weight._raw, zeroBias._raw, eps, _s));
+      return _opChecked(
+          context,
+          (out) => _b.mlx_fast_layer_norm(
+              out, _raw, weight._raw, zeroBias._raw, eps, _s));
     } finally {
       zeroBias.dispose();
     }
@@ -567,8 +596,10 @@ final class MLXArray {
     final freqsArr = freqs ?? MLXArray.zeros(context, [0]);
     final freqsOwned = freqs == null;
     try {
-      return _opChecked(context, (out) => _b.mlx_fast_rope(
-            out, _raw, dims, traditional, optBase.ref, scale, offset, freqsArr._raw, _s));
+      return _opChecked(
+          context,
+          (out) => _b.mlx_fast_rope(out, _raw, dims, traditional, optBase.ref,
+              scale, offset, freqsArr._raw, _s));
     } finally {
       calloc.free(optBase);
       if (freqsOwned) freqsArr.dispose();
@@ -622,7 +653,7 @@ final class MLXArray {
     return MLXArray.owned(ctx, out);
   }
 
-static ffi.Pointer<ffi.Int> _allocShapePtr(List<int> shape) =>
+  static ffi.Pointer<ffi.Int> _allocShapePtr(List<int> shape) =>
       _allocIntPtr(shape.isEmpty ? [0] : shape);
 
   static ffi.Pointer<ffi.Int> _allocIntPtr(List<int> values) {
@@ -664,7 +695,9 @@ MLXArray concatenate(MLXContext ctx, List<MLXArray> arrays, {int axis = 0}) {
           'mlx_vector_array_append_value');
     }
     return MLXArray._opChecked(
-        ctx, (out) => ctx.bindings.mlx_concatenate_axis(out, vec.ref, axis, ctx.stream));
+        ctx,
+        (out) =>
+            ctx.bindings.mlx_concatenate_axis(out, vec.ref, axis, ctx.stream));
   } finally {
     ctx.bindings.mlx_vector_array_free(vec.ref);
     calloc.free(vec);
@@ -681,8 +714,8 @@ MLXArray stack(MLXContext ctx, List<MLXArray> arrays, {int axis = 0}) {
       ctx.check(ctx.bindings.mlx_vector_array_append_value(vec.ref, a._raw),
           'mlx_vector_array_append_value');
     }
-    return MLXArray._opChecked(
-        ctx, (out) => ctx.bindings.mlx_stack_axis(out, vec.ref, axis, ctx.stream));
+    return MLXArray._opChecked(ctx,
+        (out) => ctx.bindings.mlx_stack_axis(out, vec.ref, axis, ctx.stream));
   } finally {
     ctx.bindings.mlx_vector_array_free(vec.ref);
     calloc.free(vec);
@@ -692,7 +725,9 @@ MLXArray stack(MLXContext ctx, List<MLXArray> arrays, {int axis = 0}) {
 /// Element-wise conditional select.
 MLXArray where(MLXContext ctx, MLXArray condition, MLXArray x, MLXArray y) =>
     MLXArray._opChecked(
-        ctx, (out) => ctx.bindings.mlx_where(out, condition._raw, x._raw, y._raw, ctx.stream));
+        ctx,
+        (out) => ctx.bindings
+            .mlx_where(out, condition._raw, x._raw, y._raw, ctx.stream));
 
 /// Scaled dot-product attention.
 ///
@@ -755,11 +790,13 @@ MLXArray createCausalMask(
   int? windowSize,
 }) {
   final total = offset + n;
-  final linds =
-      MLXArray.arange(ctx, offset.toDouble(), (offset + n).toDouble(), 1.0, dtype: MLXDtype.int32)
-          .expandDims(1);
+  final linds = MLXArray.arange(
+          ctx, offset.toDouble(), (offset + n).toDouble(), 1.0,
+          dtype: MLXDtype.int32)
+      .expandDims(1);
   final rinds =
-      MLXArray.arange(ctx, 0.0, total.toDouble(), 1.0, dtype: MLXDtype.int32).expandDims(0);
+      MLXArray.arange(ctx, 0.0, total.toDouble(), 1.0, dtype: MLXDtype.int32)
+          .expandDims(0);
 
   var mask = linds.greaterEqual(rinds);
 
@@ -798,8 +835,8 @@ MLXArray bilinearResize(
 
   if (srcH == targetH && srcW == targetW) {
     // Make a copy so ownership semantics are consistent.
-    return image.slice(
-        start: List.filled(3, 0), stop: [srcH, srcW, image.dim(2)]);
+    return image
+        .slice(start: List.filled(3, 0), stop: [srcH, srcW, image.dim(2)]);
   }
 
   final scaleH = srcH / targetH;
@@ -907,17 +944,21 @@ MLXArray bilinearResize(
 }
 
 /// Argmax sampling — greedy / deterministic.
-MLXArray argmaxSample(MLXContext ctx, MLXArray logits) => logits.argmax(axis: -1);
+MLXArray argmaxSample(MLXContext ctx, MLXArray logits) =>
+    logits.argmax(axis: -1);
 
 /// Temperature-scaled categorical sampling.
-MLXArray categoricalSample(MLXContext ctx, MLXArray logits, double temperature) {
+MLXArray categoricalSample(
+    MLXContext ctx, MLXArray logits, double temperature) {
   final temp = MLXArray.float_(ctx, temperature);
   final scaled = logits / temp;
   temp.dispose();
   // Pass a zero-initialised key struct → MLX uses its global PRNG state.
   final keyPtr = calloc<mlx_array>();
   final result = MLXArray._opChecked(
-      ctx, (out) => ctx.bindings.mlx_random_categorical(out, scaled._raw, -1, keyPtr.ref, ctx.stream));
+      ctx,
+      (out) => ctx.bindings.mlx_random_categorical(
+          out, scaled._raw, -1, keyPtr.ref, ctx.stream));
   calloc.free(keyPtr);
   scaled.dispose();
   return result;
