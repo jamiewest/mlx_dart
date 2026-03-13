@@ -5,13 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.2] - 2026-03-12
+## [0.1.2] - 2026-03-13
 
 ### Added
 
 - `gatedDeltaUpdate` — single-step gated delta state update for GatedDeltaNet-style
   linear attention models. Implements `S_new = alpha * S + beta * outer(v − S@k, k)`
   over batched multi-head state `[B, H, D, D]`.
+
+### Fixed
+
+- `Dropout` and `Dropout2d` — masks were filled with a constant `keep` value instead
+  of sampling from Bernoulli; nothing was ever actually zeroed. Now uses
+  `MLXRandom.bernoulli()` for correct stochastic behaviour.
+- `Adam` / `AdamW` — first-moment update used `(1−β₂)` instead of `(1−β₁)`,
+  corrupting momentum accumulation.
 
 ## [0.1.1] - 2026-03-10
 

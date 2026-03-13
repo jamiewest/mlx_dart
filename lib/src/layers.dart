@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'array.dart';
 import 'context.dart';
 import 'module.dart';
+import 'random.dart';
 
 /// A fully-connected (dense) linear layer: `y = x @ weight.T + bias`.
 ///
@@ -256,25 +257,14 @@ final class Dropout extends Module {
 
   MLXArray call(MLXArray x) {
     if (!training || p == 0.0) return x;
-    // Bernoulli mask: keep element with probability (1 - p).
     final keep = 1.0 - p;
-    final keepArr = MLXArray.float_(ctx, keep);
-    final maskF = MLXArray.fromFloats(ctx, List.filled(x.size, keep),
-        shape: x.shape);
-    keepArr.dispose();
-    // Each position survives with P(survive) = keep → Bernoulli(keep).
-    // Simple approach: use uniform [0,1) < keep.
-    final uniform = MLXArray.fromFloats(
-      ctx,
-      List.generate(x.size, (_) => keep),
-      shape: x.shape,
-    );
-    // mask = (uniform < keep) cast to float, then scale by 1/keep.
-    final scaleArr = MLXArray.float_(ctx, 1.0 / keep);
-    final result = x * maskF * scaleArr;
+    final mask = MLXRandom.bernoulli(ctx, p: keep, shape: x.shape);
+    final maskF = mask.astype(MLXDtype.float32);
+    mask.dispose();
+    final scale = MLXArray.float_(ctx, 1.0 / keep);
+    final result = x * maskF * scale;
     maskF.dispose();
-    uniform.dispose();
-    scaleArr.dispose();
+    scale.dispose();
     return result;
   }
 }
@@ -1040,14 +1030,12 @@ final class Dropout2d extends Module {
     final b = x.dim(0);
     final c = x.dim(3);
     final keep = 1.0 - p;
-    final maskData = List.generate(
-      b * c,
-      (_) => (keep > 0 && keep < 1) ? keep : keep,
-    );
-    final mask = MLXArray.fromFloats(ctx, maskData, shape: [b, 1, 1, c]);
-    final scale = MLXArray.float_(ctx, 1.0 / keep);
-    final result = x * mask * scale;
+    final mask = MLXRandom.bernoulli(ctx, p: keep, shape: [b, 1, 1, c]);
+    final maskF = mask.astype(MLXDtype.float32);
     mask.dispose();
+    final scale = MLXArray.float_(ctx, 1.0 / keep);
+    final result = x * maskF * scale;
+    maskF.dispose();
     scale.dispose();
     return result;
   }

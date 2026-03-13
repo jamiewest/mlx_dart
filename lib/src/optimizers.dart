@@ -164,7 +164,7 @@ class Adam extends Optimizer {
       // m = β1*m + (1-β1)*g
       final prevM = _m[key];
       final m = prevM != null
-          ? b1 * prevM + b2c * g
+          ? b1 * prevM + b1c * g
           : b1c * g;
       _m[key]?.dispose();
       _m[key] = m;
