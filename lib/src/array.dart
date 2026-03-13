@@ -1384,6 +1384,61 @@ MLXArray convTranspose1d(
         (out) => ctx.bindings.mlx_conv_transpose1d(out, input._raw, weight._raw,
             stride, padding, dilation, outputPadding, groups, ctx.stream));
 
+/// Single-step gated delta state update.
+///
+/// Implements the gated delta rule recurrence used in GatedDeltaNet-style
+/// linear attention models:
+///
+/// ```
+/// retrieved = state @ k          // [B, H, D]
+/// error     = v − retrieved
+/// state_new = alpha * state + beta * outer(error, k)
+/// ```
+///
+/// Shapes:
+/// - [state] `[B, H, D, D]` — current recurrent state
+/// - [k]     `[B, H, D]`    — (normalised) key for this step
+/// - [v]     `[B, H, D]`    — value for this step
+/// - [beta]  `[B, H]`       — per-head write gate ∈ (0, 1]
+/// - [alpha] `[B, H]`       — per-head decay gate ∈ (0, 1] (pass ones to disable)
+///
+/// Returns the updated state `[B, H, D, D]`.
+MLXArray gatedDeltaUpdate(
+  MLXContext ctx, {
+  required MLXArray state,
+  required MLXArray k,
+  required MLXArray v,
+  required MLXArray beta,
+  required MLXArray alpha,
+}) {
+  // retrieved[b,h,d] = sum_e state[b,h,d,e] * k[b,h,e]
+  final retrieved = einsum(ctx, 'bhde,bhe->bhd', [state, k]);
+
+  // Prediction error: what the state got wrong.
+  final error = v - retrieved;
+  retrieved.dispose();
+
+  // Rank-1 correction: outer(error, k) → [B, H, D, D]
+  final correction = einsum(ctx, 'bhd,bhe->bhde', [error, k]);
+  error.dispose();
+
+  // Expand gates from [B, H] → [B, H, 1, 1] for broadcasting over D×D.
+  final alphaExp = alpha.expandDims(-1).expandDims(-1);
+  final betaExp = beta.expandDims(-1).expandDims(-1);
+
+  final decayed = alphaExp * state;
+  alphaExp.dispose();
+
+  final scaled = betaExp * correction;
+  betaExp.dispose();
+  correction.dispose();
+
+  final result = decayed + scaled;
+  decayed.dispose();
+  scaled.dispose();
+  return result;
+}
+
 /// Argmax sampling — greedy / deterministic.
 MLXArray argmaxSample(MLXContext ctx, MLXArray logits) =>
     logits.argmax(axis: -1);

@@ -2,7 +2,7 @@ name: mlx_dart
 description: >-
   MLX tensor operations and neural network primitives for Dart — the Dart
   equivalent of mlx-swift, for Apple silicon (macOS / iOS).
-version: 0.1.1
+version: 0.1.2
 homepage: https://github.com/jamiewest/mlx_dart
 repository: https://github.com/jamiewest/mlx_dart
 issue_tracker: https://github.com/jamiewest/mlx_dart/issues

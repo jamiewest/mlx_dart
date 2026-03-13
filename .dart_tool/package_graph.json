@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "mlx_dart",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "dependencies": [
         "ffi",
         "mlx_c_ffi"
